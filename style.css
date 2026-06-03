@@ -1,0 +1,784 @@
+/* -----------------------------------------
+   VARIABLES & BASE STYLES
+----------------------------------------- */
+:root {
+    --primary-pink: #ff8fa3;
+    --secondary-pink: #ffb3c1;
+    --light-pink: #ffe5ec;
+    --dark-pink: #ff4d6d;
+    --pastel-purple: #c8b6ff;
+    --cream: #fff0f3;
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --shadow: 0 12px 32px rgba(255, 143, 163, 0.2);
+    --card-shadow: 0 8px 32px rgba(255, 175, 204, 0.25);
+    --font-heading: 'Fredoka', sans-serif;
+    --font-body: 'Quicksand', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    background: linear-gradient(135deg, #ffe5ec 0%, #fff0f3 50%, #c8b6ff 100%);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #4a4a4a;
+    position: relative;
+}
+
+/* Dreamy photo slideshow background */
+.bg-slideshow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    overflow: hidden;
+}
+
+.bg-slideshow .slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+}
+
+.bg-slideshow .slide.active {
+    opacity: 0.18; /* Keep opacity low (18%) so the background is extremely soft and dreamy */
+    animation: zoomSlideshow 20s linear infinite;
+}
+
+/* Add a very soft pinkish glass glow overlay */
+.bg-slideshow::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,240,243,0.3) 0%, rgba(200,182,255,0.15) 100%);
+    pointer-events: none;
+}
+
+@keyframes zoomSlideshow {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Custom Scrollbar for scrollable cards */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-pink);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-pink);
+}
+
+/* -----------------------------------------
+   FLOATING HEARTS BACKGROUND
+----------------------------------------- */
+#hearts-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.floating-heart {
+    position: absolute;
+    bottom: -50px;
+    font-size: var(--size);
+    color: var(--color);
+    opacity: 0.6;
+    animation: floatUp var(--duration) linear infinite;
+    z-index: 0;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.8;
+    }
+    80% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(-110vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* -----------------------------------------
+   APP CONTAINER & SCREENS
+----------------------------------------- */
+#app-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.active-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    animation: fadeIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.hidden-screen {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* -----------------------------------------
+   SCREEN 1: ENVELOPE SCREEN
+----------------------------------------- */
+.intro-text {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.intro-text h1 {
+    font-family: var(--font-heading);
+    font-size: 2.2rem;
+    color: var(--dark-pink);
+    text-shadow: 2px 2px 4px rgba(255, 77, 109, 0.15);
+    margin-bottom: 10px;
+}
+
+.intro-text p {
+    font-size: 1.1rem;
+    color: #7d7090;
+    font-weight: 500;
+}
+
+.envelope-wrapper {
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.envelope {
+    position: relative;
+    width: 320px;
+    height: 200px;
+    background: #ff758f;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease;
+    animation: floatEnvelope 4s ease-in-out infinite;
+}
+
+@keyframes floatEnvelope {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+.envelope:hover {
+    transform: scale(1.05);
+}
+
+.flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 160px solid transparent;
+    border-right: 160px solid transparent;
+    border-top: 110px solid #ff4d6d;
+    border-radius: 10px 10px 0 0;
+    transform-origin: top;
+    transition: transform 0.4s ease 0.2s, z-index 0.2s;
+    z-index: 40;
+}
+
+.pocket {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ff8fa3;
+    border-left: 160px solid #ff758f;
+    border-right: 160px solid #ff758f;
+    border-bottom: 100px solid #ff8fa3;
+    border-radius: 0 0 10px 10px;
+    z-index: 30;
+}
+
+.letter-preview {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 280px;
+    height: 160px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 20;
+    transition: transform 0.4s ease;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.preview-text {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--dark-pink);
+    border: 2px dashed var(--primary-pink);
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+
+.wax-seal {
+    position: absolute;
+    top: 100px;
+    left: 160px;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background: #e63946;
+    border-radius: 50%;
+    z-index: 50;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
+}
+
+.heart-seal {
+    color: white;
+    font-size: 2.2rem;
+    line-height: 1;
+    text-shadow: 0 2px 2px rgba(0,0,0,0.3);
+}
+
+.envelope.open .flap {
+    transform: rotateX(180deg);
+    z-index: 10;
+}
+
+.envelope.open .letter-preview {
+    transform: translateY(-80px);
+    z-index: 35;
+}
+
+.envelope.open .wax-seal {
+    transform: translate(-50%, -50%) scale(0);
+}
+
+/* -----------------------------------------
+   CARDS & LETTER SCREEN
+----------------------------------------- */
+.card {
+    width: 100%;
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    max-height: 90vh;
+}
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--card-shadow);
+}
+
+.scrollable {
+    overflow-y: auto;
+}
+
+.card-header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.bear-img {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 12px rgba(255, 175, 204, 0.3));
+}
+
+.bounce-animation {
+    animation: gentleBounce 2.5s ease-in-out infinite;
+}
+
+@keyframes gentleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.card-body {
+    text-align: center;
+    width: 100%;
+}
+
+.card-body h2 {
+    font-family: var(--font-heading);
+    font-size: 2.2rem;
+    color: var(--dark-pink);
+    margin-bottom: 20px;
+}
+
+.letter-text-box {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 120px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    text-align: left;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.letter-text-box p {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: #4a4a4a;
+    white-space: pre-wrap;
+}
+
+.question-box h3 {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: #5c4e70;
+    margin-bottom: 20px;
+}
+
+.button-group {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    position: relative;
+    min-height: 60px;
+    width: 100%;
+}
+
+.cute-btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 50px;
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.btn-yes {
+    background: linear-gradient(135deg, #ff758f 0%, #ff4d6d 100%);
+    color: white;
+}
+
+.btn-yes:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 77, 109, 0.3);
+}
+
+.btn-yes:active {
+    transform: scale(0.95);
+}
+
+.btn-no {
+    background: #d3d3d3;
+    color: #555555;
+    position: relative;
+}
+
+/* Dodging Class */
+.btn-no.dodge {
+    position: fixed;
+    z-index: 10000;
+}
+
+/* Dodge Feedback Alert Bubble */
+.dodge-alert {
+    background: rgba(255, 175, 204, 0.15);
+    border: 1px dashed var(--primary-pink);
+    color: var(--dark-pink);
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: inline-block;
+    transition: all 0.3s ease;
+    animation: alertPop 0.3s ease forwards;
+}
+
+@keyframes alertPop {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* -----------------------------------------
+   SCREEN 3: SUCCESS & LOVE COUPONS
+----------------------------------------- */
+.rainbow-text {
+    background: linear-gradient(to right, #ff4d6d, #ff8fa3, #c8b6ff, #ff758f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbowShift 8s linear infinite;
+    background-size: 200% auto;
+}
+
+@keyframes rainbowShift {
+    to { background-position: 200% center; }
+}
+
+.sweet-thanks {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    color: #4a4a4a;
+}
+
+.coupon-tip {
+    font-size: 0.95rem;
+    color: #7d7090;
+    margin-bottom: 25px;
+    font-style: italic;
+}
+
+.coupons-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    width: 100%;
+}
+
+/* Coupon Card Styling */
+.coupon-card {
+    height: 160px;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.coupon-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-style: preserve-3d;
+}
+
+.coupon-card.flipped .coupon-inner {
+    transform: rotateY(180deg);
+}
+
+.coupon-front, .coupon-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(255, 175, 204, 0.15);
+}
+
+.coupon-front {
+    background: linear-gradient(135deg, #fff0f3 0%, #ffe5ec 100%);
+    border: 2px dashed var(--secondary-pink);
+}
+
+.coupon-icon {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+}
+
+.coupon-front h3 {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    color: var(--dark-pink);
+    margin-bottom: 6px;
+}
+
+.coupon-badge {
+    background: var(--pastel-purple);
+    color: white;
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.coupon-back {
+    background: white;
+    border: 2px solid var(--primary-pink);
+    transform: rotateY(180deg);
+    justify-content: space-between;
+}
+
+.coupon-back h3 {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    color: var(--dark-pink);
+}
+
+.coupon-back p {
+    font-size: 0.8rem;
+    line-height: 1.3;
+    color: #666;
+    margin: 5px 0;
+}
+
+.coupon-tear {
+    width: 100%;
+    border-top: 1px dashed #ccc;
+    padding-top: 5px;
+}
+
+.redeem-btn {
+    width: 100%;
+    padding: 6px 0;
+    background: var(--primary-pink);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.redeem-btn:hover {
+    background: var(--dark-pink);
+}
+
+.coupon-card.redeemed .coupon-front {
+    opacity: 0.6;
+    background: #e2e2e2;
+    border-color: #aaa;
+}
+
+.coupon-card.redeemed .coupon-badge {
+    background: #888;
+}
+
+/* -----------------------------------------
+   CONFETTI CANVAS
+----------------------------------------- */
+#confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    pointer-events: none;
+}
+
+/* -----------------------------------------
+   POPUP MODAL
+----------------------------------------- */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100000;
+    transition: opacity 0.3s ease;
+}
+
+.popup-overlay.hidden {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.popup-content {
+    background: white;
+    width: 90%;
+    max-width: 380px;
+    padding: 30px;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    border: 3px solid var(--primary-pink);
+    animation: popupScale 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popupScale {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.popup-heart {
+    font-size: 3rem;
+    color: var(--dark-pink);
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.15); }
+}
+
+.popup-content h2 {
+    font-family: var(--font-heading);
+    color: var(--dark-pink);
+    margin: 15px 0 10px;
+}
+
+.popup-content p {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #555;
+    margin-bottom: 25px;
+}
+
+.popup-content .cute-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #ff758f 0%, #ff4d6d 100%);
+    color: white;
+}
+
+/* -----------------------------------------
+   RESPONSIVE LAYOUT
+----------------------------------------- */
+@media (max-width: 480px) {
+    .intro-text h1 {
+        font-size: 1.8rem;
+    }
+    
+    .envelope {
+        width: 280px;
+        height: 175px;
+    }
+    
+    .flap {
+        border-left: 140px solid transparent;
+        border-right: 140px solid transparent;
+        border-top: 96px solid #ff4d6d;
+    }
+    
+    .pocket {
+        border-left: 140px solid #ff758f;
+        border-right: 140px solid #ff758f;
+        border-bottom: 87px solid #ff8fa3;
+    }
+    
+    .letter-preview {
+        width: 240px;
+        height: 135px;
+        top: 20px;
+        left: 20px;
+    }
+    
+    .preview-text {
+        font-size: 1.2rem;
+    }
+    
+    .wax-seal {
+        left: 140px;
+        top: 87px;
+    }
+    
+    .card {
+        padding: 20px;
+    }
+    
+    .bear-img {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .card-body h2 {
+        font-size: 1.8rem;
+    }
+    
+    .letter-text-box p {
+        font-size: 1rem;
+    }
+    
+    .coupons-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .coupon-card {
+        height: 140px;
+    }
+}
